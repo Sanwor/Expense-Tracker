@@ -1,15 +1,35 @@
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:expense_tracker/src/services/firebase_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
-class ExpenseFiller extends StatelessWidget {
-  ExpenseFiller({super.key});
+class ExpenseFiller extends StatefulWidget {
+  const ExpenseFiller({super.key});
+
+  @override
+  State<ExpenseFiller> createState() => _ExpenseFillerState();
+}
+
+class _ExpenseFillerState extends State<ExpenseFiller> {
   final _formKey = GlobalKey<FormState>();
+
+  final TextEditingController titleCon = TextEditingController();
+  final TextEditingController descCon = TextEditingController();
+  final TextEditingController priceCon = TextEditingController();
+
   File? selectedImage;
+
+  @override
+  void dispose() {
+    titleCon.dispose();
+    descCon.dispose();
+    priceCon.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +40,7 @@ class ExpenseFiller extends StatelessWidget {
             onPressed: () => Get.back(), icon: Icon(Icons.arrow_back_ios_new)),
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        padding:  EdgeInsets.symmetric(horizontal: 20.sp, vertical: 15.sp),
         child: SingleChildScrollView(
           child: Column(
             children: [
@@ -30,6 +50,7 @@ class ExpenseFiller extends StatelessWidget {
                 child: Column(
                   children: [
                     TextFormField(
+                      controller: titleCon,
                       decoration: InputDecoration(
                           hoverColor: Colors.white,
                           labelText: 'Title',
@@ -39,6 +60,7 @@ class ExpenseFiller extends StatelessWidget {
                     ),
                     SizedBox(height: 15.h),
                     TextFormField(
+                        controller: descCon,
                         maxLines: 5,
                         minLines: 5,
                         keyboardType: TextInputType.multiline,
@@ -49,6 +71,7 @@ class ExpenseFiller extends StatelessWidget {
                             border: OutlineInputBorder())),
                     SizedBox(height: 15.h),
                     TextFormField(
+                      controller: priceCon,
                       decoration: InputDecoration(
                           labelText: 'Price', border: OutlineInputBorder()),
                       keyboardType: TextInputType.number,
@@ -81,31 +104,40 @@ class ExpenseFiller extends StatelessWidget {
                           final picked = await ImagePicker()
                               .pickImage(source: ImageSource.camera);
                           if (picked != null) {
-                            // setState(() {
-                            //   selectedImage = File(picked.path);
-                            // });
+                            setState(() {
+                              selectedImage = File(picked.path);
+                            });
                           }
                         },
                         child: Icon(Icons.camera_alt_outlined)),
                     SizedBox(height: 50.h),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xffEFE9FD),
+                        backgroundColor: Color.fromARGB(255, 230, 221, 251),
                         minimumSize: Size(200.w, 50.h),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      onPressed: () {
+                      onPressed: () async {
+                        Get.snackbar('Added', "");
+                        await FirebaseServices().addExpenseData(
+                            description: descCon.text,
+                            price: priceCon.text,
+                            title: titleCon.text);
                         if (_formKey.currentState!.validate() &&
                             selectedImage != null) {
+                          await FirebaseServices().addExpenseData(
+                              description: descCon.text,
+                              price: priceCon.text,
+                              title: titleCon.text);
                           // Save expense data
                         } else {
                           // Show a snackbar or toast: image required
                         }
                       },
                       child: Text(
-                        'Submit',
+                        'Add',
                         style: TextStyle(
                           color: Colors.black,
                         ),

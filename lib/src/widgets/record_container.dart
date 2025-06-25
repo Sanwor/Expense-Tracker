@@ -1,43 +1,122 @@
-import 'dart:ffi';
-import 'dart:io';
-
+import 'package:expense_tracker/src/view/product_detail.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 
 class RecordContainer extends StatelessWidget {
   final String title;
   final String description;
-  final File itemImage;
-  final Double itemPrice;
-  final IconData icon;
+  final String dateTime;
+  final String itemImage;
+  final double itemPrice;
 
-  const RecordContainer(
-      {super.key,
-      required this.title,
-      required this.description,
-      required this.itemImage,
-      required this.itemPrice,
-      required this.icon});
+  const RecordContainer({
+    super.key,
+    required this.title,
+    required this.description,
+    required this.dateTime,
+    required this.itemImage,
+    required this.itemPrice,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
-      color: Color(0xffEFE9FD),
-      width: double.infinity,
-      child: Column(
-        children: [
-          //title and icon
-          Row(children: [
-            Text(title),
-            IconButton(onPressed: () {}, icon: Icon(Icons.more_vert))
-          ]),
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.sp, vertical: 10.sp),
+      child: GestureDetector(
+        onTap: () => Get.to(ProductDetail()),
+        child: Container(
+          decoration: BoxDecoration(
+              color: Color(0xffEFE9FD),
+              borderRadius: BorderRadius.circular(20)),
+          width: double.infinity,
+          child: Padding(
+            padding: EdgeInsets.all(10.sp),
+            child: Column(
+              children: [
+                //title
+                Row(
+                  children: [
+                    Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            title,
+                            style: TextStyle(
+                              fontSize: 20.sp,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    PopupMenuButton(
+                      onSelected: (value) {},
+                      itemBuilder: (BuildContext context) => <PopupMenuEntry>[
+                        const PopupMenuItem(child: Text('delete')),
+                      ],
+                    ),
+                    // IconButton(onPressed: () {}, icon: Icon(Icons.more_vert))
+                  ],
+                ),
+                Row(
+                  children: [
+                    //image
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Image.file(itemImage),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.asset(
+                            'assets/emptyImage.png',
+                            height: 100.h,
+                            width: 100.w,
+                          ),
+                        )
+                      ],
+                    ),
+                    SizedBox(width: 10.w),
+                    Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          //description
+                          Text(description),
+                        ]),
+                  ],
+                ),
 
-          //image and description
-          Row(children: [Image.file(itemImage), Text(description)]),
-
-          //price
-          Row(children: [Text(itemPrice.toString())]),
-        ],
+                //price
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: Row(
+                        children: [
+                          Text(
+                            dateTime,
+                            style:
+                                TextStyle(fontSize: 10.sp, color: Colors.grey),
+                          )
+                        ],
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          "Rs.${itemPrice.toString()}",
+                          style: TextStyle(
+                              fontSize: 18.sp, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
