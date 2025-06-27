@@ -8,8 +8,11 @@ class FirebaseServices {
 
   // Set Exprense Data
   Future addExpenseData(
-      {required title, required description, required price}) async {
-    return await FirebaseFirestore.instance
+      {required title,
+      required description,
+      required price,
+      required image}) async {
+    await FirebaseFirestore.instance
         .collection('expenseList')
         .doc(DateTime.now().toIso8601String().toString())
         .set({
@@ -17,7 +20,7 @@ class FirebaseServices {
       "description": description,
       "price": price,
       "date_time": DateTime.now().toString(),
-      "image_url": ""
+      "image_url": image
     });
   }
 }

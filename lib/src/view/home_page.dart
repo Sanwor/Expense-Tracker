@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:expense_tracker/src/controller/home_controller.dart';
 import 'package:expense_tracker/src/services/firebase_services.dart';
 import 'package:expense_tracker/src/view/expense_filler.dart';
 import 'package:expense_tracker/src/view/profile_page.dart';
@@ -17,6 +18,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   MyDrawer drawerTab = Get.put(MyDrawer());
+  final homeCon = Get.put(HomeController());
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,7 +39,12 @@ class _HomePageState extends State<HomePage> {
         drawer: drawerTab,
         floatingActionButton: FloatingActionButton.extended(
             backgroundColor: Color(0xffEFE9FD),
-            onPressed: () => Get.to(() => ExpenseFiller()),
+            onPressed: () async {
+              var isSuccess = await Get.to(() => ExpenseFiller());
+              if (isSuccess == true) {
+                setState(() {});
+              }
+            },
             label: Row(
               children: [Icon(Icons.add), Text('Add')],
             )),
@@ -80,7 +87,6 @@ class _HomePageState extends State<HomePage> {
                     stream: FirebaseServices().getExprenseList(),
                     builder: (BuildContext context,
                         AsyncSnapshot<QuerySnapshot> snapshot) {
-                      var data = snapshot.data;
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return Center(
                           child: CircularProgressIndicator(),
@@ -93,17 +99,28 @@ class _HomePageState extends State<HomePage> {
                         );
                       }
 
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        homeCon.total.value = snapshot.data!.docs
+                            .map((document) =>
+                                double.tryParse(document['price'].toString()) ??
+                                0.0)
+                            .fold(
+                                0.0,
+                                (a, b) =>
+                                    a + b); // ✅ safe even if the list is empty
+                      });
+
                       return SizedBox(
                         height: 550.h,
                         child: ListView(
                           children: snapshot.data!.docs.map((document) {
                             return RecordContainer(
                               description: document['description'],
-                              itemImage: "image",
+                              itemImage: document['image_url'],
                               itemPrice:
                                   double.parse(document['price'].toString()),
                               title: document['title'],
-                              dateTime: DateTime.now().toString(),
+                              dateTime: document['date_time'].toString(),
                             );
                           }).toList(),
                         ),
@@ -117,10 +134,12 @@ class _HomePageState extends State<HomePage> {
                   Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 20, vertical: 10),
-                    child: Text(
-                      'Total:',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    child: Obx(
+                      () => Text(
+                        'Total: ${homeCon.total.value}',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
                     ),
                   )
                 ],

@@ -2,6 +2,7 @@ import 'package:expense_tracker/src/view/product_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class RecordContainer extends StatelessWidget {
   final String title;
@@ -10,7 +11,7 @@ class RecordContainer extends StatelessWidget {
   final String itemImage;
   final double itemPrice;
 
-  const RecordContainer({
+  RecordContainer({
     super.key,
     required this.title,
     required this.description,
@@ -65,14 +66,18 @@ class RecordContainer extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        // Image.file(itemImage),
                         ClipRRect(
                           borderRadius: BorderRadius.circular(10),
-                          child: Image.asset(
-                            'assets/emptyImage.png',
-                            height: 100.h,
-                            width: 100.w,
+                          child: SizedBox(
+                            height: 100,
+                            width: 100,
+                            child: Image.network(
+                              itemImage,
+                              height: 100,
+                              width: 100,
+                            ),
                           ),
+                          // Image.asset('assets/emptyImage.png')
                         )
                       ],
                     ),

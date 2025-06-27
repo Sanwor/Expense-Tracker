@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'dart:ui';
 
@@ -6,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ExpenseFiller extends StatefulWidget {
   const ExpenseFiller({super.key});
@@ -40,7 +42,7 @@ class _ExpenseFillerState extends State<ExpenseFiller> {
             onPressed: () => Get.back(), icon: Icon(Icons.arrow_back_ios_new)),
       ),
       body: Padding(
-        padding:  EdgeInsets.symmetric(horizontal: 20.sp, vertical: 15.sp),
+        padding: EdgeInsets.symmetric(horizontal: 20.sp, vertical: 15.sp),
         child: SingleChildScrollView(
           child: Column(
             children: [
@@ -120,21 +122,22 @@ class _ExpenseFillerState extends State<ExpenseFiller> {
                         ),
                       ),
                       onPressed: () async {
-                        Get.snackbar('Added', "");
-                        await FirebaseServices().addExpenseData(
-                            description: descCon.text,
-                            price: priceCon.text,
-                            title: titleCon.text);
-                        if (_formKey.currentState!.validate() &&
-                            selectedImage != null) {
-                          await FirebaseServices().addExpenseData(
-                              description: descCon.text,
-                              price: priceCon.text,
-                              title: titleCon.text);
-                          // Save expense data
-                        } else {
-                          // Show a snackbar or toast: image required
+                        var isSuccess = await saveData(selectedImage);
+                        if (isSuccess == true) {
+                          Get.snackbar('Added', "Data added successfully");
+                          // ignore: use_build_context_synchronously
+                          Navigator.pop(context, true);
                         }
+                        // if (_formKey.currentState!.validate() &&
+                        //     selectedImage != null) {
+                        //   await FirebaseServices().addExpenseData(
+                        //       description: descCon.text,
+                        //       price: priceCon.text,
+                        //       title: titleCon.text);
+                        //   // Save expense data
+                        // } else {
+                        //   // Show a snackbar or toast: image required
+                        // }
                       },
                       child: Text(
                         'Add',
@@ -151,5 +154,23 @@ class _ExpenseFillerState extends State<ExpenseFiller> {
         ),
       ),
     );
+  }
+
+  saveData(image) async {
+    await Supabase.instance.client.storage
+        .from('images')
+        .upload('uploads/${titleCon.text}', image!);
+
+    final imageUrl = Supabase.instance.client.storage
+        .from('images')
+        .getPublicUrl('uploads/${titleCon.text}');
+
+    await FirebaseServices().addExpenseData(
+        description: descCon.text,
+        price: priceCon.text,
+        title: titleCon.text,
+        image: imageUrl);
+
+    return true;
   }
 }
