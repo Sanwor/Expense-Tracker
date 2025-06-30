@@ -12,7 +12,8 @@ void main() async {
   await Firebase.initializeApp();
   await Supabase.initialize(
     url: "https://jcngdlgifrpyhapuiqyw.supabase.co",
-    anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpjbmdkbGdpZnJweWhhcHVpcXl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA5MTU5MTYsImV4cCI6MjA2NjQ5MTkxNn0.PwDn9L56_D4sBEKEYgMrFDhCK94ldazIzYyqgpQrDfc ",
+    anonKey:
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpjbmdkbGdpZnJweWhhcHVpcXl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA5MTU5MTYsImV4cCI6MjA2NjQ5MTkxNn0.PwDn9L56_D4sBEKEYgMrFDhCK94ldazIzYyqgpQrDfc",
   );
   runApp(const MyApp());
 }

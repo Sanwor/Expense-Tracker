@@ -12,14 +12,15 @@ class FirebaseServices {
       required description,
       required price,
       required image}) async {
+    var millisecond = DateTime.now().millisecondsSinceEpoch.toString();
     await FirebaseFirestore.instance
         .collection('expenseList')
-        .doc(DateTime.now().toIso8601String().toString())
+        .doc(millisecond)
         .set({
       "title": title,
       "description": description,
       "price": price,
-      "date_time": DateTime.now().toString(),
+      "date_time": millisecond,
       "image_url": image
     });
   }

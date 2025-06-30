@@ -36,7 +36,7 @@ class _HomePageState extends State<HomePage> {
             )
           ],
         ),
-        drawer: drawerTab,
+        // drawer: drawerTab,
         floatingActionButton: FloatingActionButton.extended(
             backgroundColor: Color(0xffEFE9FD),
             onPressed: () async {
@@ -77,7 +77,7 @@ class _HomePageState extends State<HomePage> {
                     padding:
                         EdgeInsets.symmetric(horizontal: 10.sp, vertical: 10),
                     child: Text(
-                      "Today's records",
+                      "Your records:",
                       textAlign: TextAlign.left,
                     ),
                   ),
@@ -89,7 +89,9 @@ class _HomePageState extends State<HomePage> {
                         AsyncSnapshot<QuerySnapshot> snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return Center(
-                          child: CircularProgressIndicator(),
+                          child: CircularProgressIndicator(
+                            color: Color.fromARGB(255, 227, 215, 255),
+                          ),
                         );
                       }
 
@@ -117,10 +119,15 @@ class _HomePageState extends State<HomePage> {
                             return RecordContainer(
                               description: document['description'],
                               itemImage: document['image_url'],
+                              dateTimeMilisecond:
+                                  document['date_time'].toString(),
                               itemPrice:
-                                  double.parse(document['price'].toString()),
+                                  double.parse(document['price']!.toString()),
                               title: document['title'],
-                              dateTime: document['date_time'].toString(),
+                              dateTime: DateTime.fromMillisecondsSinceEpoch(
+                                      int.parse(
+                                          document['date_time'].toString()))
+                                  .toString(),
                             );
                           }).toList(),
                         ),

@@ -85,7 +85,7 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             SizedBox(height: 10.h),
             Text(
-              'Sanwor Rajbhandari',
+              'User',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 30.sp,

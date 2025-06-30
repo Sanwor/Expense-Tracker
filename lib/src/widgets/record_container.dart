@@ -1,23 +1,25 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:expense_tracker/src/view/product_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class RecordContainer extends StatelessWidget {
   final String title;
   final String description;
   final String dateTime;
+  final String dateTimeMilisecond;
   final String itemImage;
   final double itemPrice;
 
-  RecordContainer({
+  const RecordContainer({
     super.key,
     required this.title,
     required this.description,
     required this.dateTime,
     required this.itemImage,
     required this.itemPrice,
+    required this.dateTimeMilisecond,
   });
 
   @override
@@ -52,12 +54,29 @@ class RecordContainer extends StatelessWidget {
                       ),
                     ),
                     PopupMenuButton(
-                      onSelected: (value) {},
+                      onSelected: (value) async {
+                        if (value == 'delete') {
+                          try {
+                            await FirebaseFirestore.instance
+                                .collection('expenseList')
+                                .doc(dateTimeMilisecond
+                                    .toString()) //used dateTime instead of id
+                                .delete();
+
+                            Get.snackbar(
+                                'Deleted', 'Expense successfully deleted');
+                          } catch (e) {
+                            Get.snackbar('Error', 'Failed to delete: $e');
+                          }
+                        }
+                      },
                       itemBuilder: (BuildContext context) => <PopupMenuEntry>[
-                        const PopupMenuItem(child: Text('delete')),
+                        const PopupMenuItem(
+                          value: 'delete',
+                          child: Text('Delete'),
+                        ),
                       ],
                     ),
-                    // IconButton(onPressed: () {}, icon: Icon(Icons.more_vert))
                   ],
                 ),
                 Row(

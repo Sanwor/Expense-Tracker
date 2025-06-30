@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 import 'dart:ui';
 
@@ -62,15 +61,20 @@ class _ExpenseFillerState extends State<ExpenseFiller> {
                     ),
                     SizedBox(height: 15.h),
                     TextFormField(
-                        controller: descCon,
-                        maxLines: 5,
-                        minLines: 5,
-                        keyboardType: TextInputType.multiline,
-                        selectionHeightStyle: BoxHeightStyle.max,
-                        decoration: InputDecoration(
-                            labelText: 'Description',
-                            alignLabelWithHint: true,
-                            border: OutlineInputBorder())),
+                      controller: descCon,
+                      maxLines: 5,
+                      minLines: 5,
+                      keyboardType: TextInputType.multiline,
+                      selectionHeightStyle: BoxHeightStyle.max,
+                      decoration: InputDecoration(
+                          labelText: 'Description',
+                          alignLabelWithHint: true,
+                          border: OutlineInputBorder()),
+                      validator: (value) =>
+                          value == null || value.trim().isEmpty
+                              ? 'Enter description'
+                              : null,
+                    ),
                     SizedBox(height: 15.h),
                     TextFormField(
                       controller: priceCon,
@@ -91,7 +95,11 @@ class _ExpenseFillerState extends State<ExpenseFiller> {
                       ),
                       child: selectedImage != null
                           ? Image.file(selectedImage!, height: 150.h)
-                          : Text('No image selected'),
+                          : Center(
+                              child: Text(
+                              'selected image will appear here',
+                              style: TextStyle(fontSize: 12.sp),
+                            )),
                     ),
                     SizedBox(height: 20.h),
                     ElevatedButton(
@@ -122,25 +130,45 @@ class _ExpenseFillerState extends State<ExpenseFiller> {
                         ),
                       ),
                       onPressed: () async {
+                        // Validate text fields
+                        if (!_formKey.currentState!.validate()) {
+                          return; // Stop if any validator fails
+                        }
+
+                        // Check if image is selected
+                        if (selectedImage == null) {
+                          Get.snackbar('Missing Image',
+                              'Please capture an image before submitting');
+                          return;
+                        }
+
+                        // Shows loading dialog
+                        showDialog(
+                          context: context,
+                          barrierDismissible:
+                              false, // Prevents dismiss by tapping outside
+                          builder: (context) {
+                            return const Center(
+                              child: CircularProgressIndicator(
+                                  color: Color.fromARGB(255, 227, 215, 255)),
+                            );
+                          },
+                        );
+
+                        // Save data
                         var isSuccess = await saveData(selectedImage);
+
+                        // Close the loading dialog
+                        Navigator.of(context).pop();
+
                         if (isSuccess == true) {
                           Get.snackbar('Added', "Data added successfully");
-                          // ignore: use_build_context_synchronously
-                          Navigator.pop(context, true);
+                          Navigator.pop(context,
+                              true); // Navigate back with success result
                         }
-                        // if (_formKey.currentState!.validate() &&
-                        //     selectedImage != null) {
-                        //   await FirebaseServices().addExpenseData(
-                        //       description: descCon.text,
-                        //       price: priceCon.text,
-                        //       title: titleCon.text);
-                        //   // Save expense data
-                        // } else {
-                        //   // Show a snackbar or toast: image required
-                        // }
                       },
                       child: Text(
-                        'Add',
+                        'Add data',
                         style: TextStyle(
                           color: Colors.black,
                         ),
@@ -157,13 +185,14 @@ class _ExpenseFillerState extends State<ExpenseFiller> {
   }
 
   saveData(image) async {
+    var milliSecond = DateTime.now().millisecondsSinceEpoch.toString();
     await Supabase.instance.client.storage
         .from('images')
-        .upload('uploads/${titleCon.text}', image!);
+        .upload('uploads/$milliSecond', image!);
 
     final imageUrl = Supabase.instance.client.storage
         .from('images')
-        .getPublicUrl('uploads/${titleCon.text}');
+        .getPublicUrl('uploads/$milliSecond');
 
     await FirebaseServices().addExpenseData(
         description: descCon.text,
