@@ -24,15 +24,16 @@ class _ProfilePageState extends State<ProfilePage> {
         child: Column(
           children: [
             ClipRRect(
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(40)),
+              borderRadius:
+                  BorderRadius.vertical(bottom: Radius.circular(40.sp)),
               child: Container(
                 color: Color(0xffEFE9FD),
-                height: 180.h,
-                width: double.infinity,
+                height: 200.h,
+                width: double.infinity.w,
                 child: Center(
                   child: Column(
                     children: [
-                      CircleAvatar(radius: 60, backgroundImage: null),
+                      CircleAvatar(radius: 60.sp, backgroundImage: null),
                       TextButton(
                           onPressed: () {
                             showDialog(
@@ -46,7 +47,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                           style: ElevatedButton.styleFrom(
                                             shape: RoundedRectangleBorder(
                                               borderRadius:
-                                                  BorderRadius.circular(15),
+                                                  BorderRadius.circular(15.sp),
                                             ),
                                           ),
                                           child: Text('Gallery')),
@@ -62,7 +63,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                         style: ElevatedButton.styleFrom(
                                           shape: RoundedRectangleBorder(
                                             borderRadius:
-                                                BorderRadius.circular(15),
+                                                BorderRadius.circular(15.sp),
                                           ),
                                         ),
                                         child: Text('Camera'),

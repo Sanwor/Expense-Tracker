@@ -2,12 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:expense_tracker/src/controller/home_controller.dart';
 import 'package:expense_tracker/src/services/firebase_services.dart';
 import 'package:expense_tracker/src/view/expense_filler.dart';
+import 'package:expense_tracker/src/view/product_detail.dart';
 import 'package:expense_tracker/src/view/profile_page.dart';
 import 'package:expense_tracker/src/widgets/menu_drawer.dart';
 import 'package:expense_tracker/src/widgets/record_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -53,12 +55,12 @@ class _HomePageState extends State<HomePage> {
             children: [
               ClipRRect(
                 borderRadius:
-                    BorderRadius.vertical(bottom: Radius.circular(30)),
+                    BorderRadius.vertical(bottom: Radius.circular(30.sp)),
                 child: ColoredBox(
                   color: Color(0xffEFE9FD),
                   child: SizedBox(
                     height: 110.h,
-                    width: double.infinity,
+                    width: double.infinity.w,
                     child: Padding(
                       padding: EdgeInsets.only(
                           top: 10.sp, bottom: 10.sp, left: 20.sp),
@@ -74,8 +76,8 @@ class _HomePageState extends State<HomePage> {
               Column(
                 children: [
                   Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 10.sp, vertical: 10),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 10.sp, vertical: 10.sp),
                     child: Text(
                       "Your records:",
                       textAlign: TextAlign.left,
@@ -84,7 +86,7 @@ class _HomePageState extends State<HomePage> {
 
                   //data container
                   StreamBuilder(
-                    stream: FirebaseServices().getExprenseList(),
+                    stream: FirebaseServices().getExpenseList(),
                     builder: (BuildContext context,
                         AsyncSnapshot<QuerySnapshot> snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
@@ -97,6 +99,7 @@ class _HomePageState extends State<HomePage> {
 
                       if (snapshot.data == null) {
                         return SizedBox(
+                          height: 500.h,
                           child: Text("No Data Found"),
                         );
                       }
@@ -109,7 +112,7 @@ class _HomePageState extends State<HomePage> {
                             .fold(
                                 0.0,
                                 (a, b) =>
-                                    a + b); // ✅ safe even if the list is empty
+                                    a + b); // safe even if the list is empty
                       });
 
                       return SizedBox(
@@ -117,6 +120,11 @@ class _HomePageState extends State<HomePage> {
                         child: ListView(
                           children: snapshot.data!.docs.map((document) {
                             return RecordContainer(
+                              onTap: () {
+                                Get.to(() => ProductDetail(
+                                      doc: document,
+                                    ));
+                              },
                               description: document['description'],
                               itemImage: document['image_url'],
                               dateTimeMilisecond:
@@ -124,10 +132,9 @@ class _HomePageState extends State<HomePage> {
                               itemPrice:
                                   double.parse(document['price']!.toString()),
                               title: document['title'],
-                              dateTime: DateTime.fromMillisecondsSinceEpoch(
-                                      int.parse(
-                                          document['date_time'].toString()))
-                                  .toString(),
+                              dateTime: DateFormat('yyyy-MM-dd – kk:mm').format(
+                                  DateTime.fromMillisecondsSinceEpoch(int.parse(
+                                      document['date_time'].toString()))),
                             );
                           }).toList(),
                         ),
@@ -139,13 +146,13 @@ class _HomePageState extends State<HomePage> {
               Row(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 10),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 20.sp, vertical: 10.sp),
                     child: Obx(
                       () => Text(
                         'Total: ${homeCon.total.value}',
                         style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
+                            fontSize: 20.sp, fontWeight: FontWeight.bold),
                       ),
                     ),
                   )

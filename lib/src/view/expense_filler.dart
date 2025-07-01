@@ -35,6 +35,7 @@ class _ExpenseFillerState extends State<ExpenseFiller> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Color(0xffEFE9FD),
         leading: IconButton(
@@ -89,7 +90,7 @@ class _ExpenseFillerState extends State<ExpenseFiller> {
                     SizedBox(height: 16.h),
                     Container(
                       height: 150.h,
-                      width: double.infinity,
+                      width: double.infinity.w,
                       decoration: BoxDecoration(
                         border: Border.all(),
                       ),
@@ -107,7 +108,7 @@ class _ExpenseFillerState extends State<ExpenseFiller> {
                           backgroundColor: Colors.white,
                           minimumSize: Size(60.w, 60.h),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(10.sp),
                           ),
                         ),
                         onPressed: () async {
@@ -126,7 +127,7 @@ class _ExpenseFillerState extends State<ExpenseFiller> {
                         backgroundColor: Color.fromARGB(255, 230, 221, 251),
                         minimumSize: Size(200.w, 50.h),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(10.sp),
                         ),
                       ),
                       onPressed: () async {
@@ -159,12 +160,12 @@ class _ExpenseFillerState extends State<ExpenseFiller> {
                         var isSuccess = await saveData(selectedImage);
 
                         // Close the loading dialog
-                        Navigator.of(context).pop();
+                        Get.back();
 
+                        // success vaye pachi homescreen ma redirect huna
                         if (isSuccess == true) {
+                          Get.back(); //Get.back halda jaile snackbar ko mathi halne natra snackbar udaucha
                           Get.snackbar('Added', "Data added successfully");
-                          Navigator.pop(context,
-                              true); // Navigate back with success result
                         }
                       },
                       child: Text(
@@ -186,18 +187,22 @@ class _ExpenseFillerState extends State<ExpenseFiller> {
 
   saveData(image) async {
     var milliSecond = DateTime.now().millisecondsSinceEpoch.toString();
+    //upload to supabase
     await Supabase.instance.client.storage
         .from('images')
         .upload('uploads/$milliSecond', image!);
 
+    //get url from supabse
     final imageUrl = Supabase.instance.client.storage
         .from('images')
         .getPublicUrl('uploads/$milliSecond');
 
+    //store url in firebase
     await FirebaseServices().addExpenseData(
         description: descCon.text,
         price: priceCon.text,
         title: titleCon.text,
+        millisecond: milliSecond,
         image: imageUrl);
 
     return true;

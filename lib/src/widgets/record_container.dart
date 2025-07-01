@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:expense_tracker/src/view/product_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class RecordContainer extends StatelessWidget {
   final String title;
@@ -11,6 +11,7 @@ class RecordContainer extends StatelessWidget {
   final String dateTimeMilisecond;
   final String itemImage;
   final double itemPrice;
+  final VoidCallback onTap;
 
   const RecordContainer({
     super.key,
@@ -20,6 +21,7 @@ class RecordContainer extends StatelessWidget {
     required this.itemImage,
     required this.itemPrice,
     required this.dateTimeMilisecond,
+    required this.onTap,
   });
 
   @override
@@ -27,11 +29,11 @@ class RecordContainer extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.sp, vertical: 10.sp),
       child: GestureDetector(
-        onTap: () => Get.to(ProductDetail()),
+        onTap: onTap,
         child: Container(
           decoration: BoxDecoration(
               color: Color(0xffEFE9FD),
-              borderRadius: BorderRadius.circular(20)),
+              borderRadius: BorderRadius.circular(20.sp)),
           width: double.infinity,
           child: Padding(
             padding: EdgeInsets.all(10.sp),
@@ -57,6 +59,10 @@ class RecordContainer extends StatelessWidget {
                       onSelected: (value) async {
                         if (value == 'delete') {
                           try {
+                            await Supabase.instance.client.storage
+                                .from('images')
+                                .remove(['uploads/$dateTimeMilisecond']);
+
                             await FirebaseFirestore.instance
                                 .collection('expenseList')
                                 .doc(dateTimeMilisecond
@@ -73,7 +79,10 @@ class RecordContainer extends StatelessWidget {
                       itemBuilder: (BuildContext context) => <PopupMenuEntry>[
                         const PopupMenuItem(
                           value: 'delete',
-                          child: Text('Delete'),
+                          child: Text(
+                            'Delete',
+                            style: TextStyle(color: Colors.redAccent),
+                          ),
                         ),
                       ],
                     ),
@@ -88,15 +97,22 @@ class RecordContainer extends StatelessWidget {
                         ClipRRect(
                           borderRadius: BorderRadius.circular(10),
                           child: SizedBox(
-                            height: 100,
-                            width: 100,
+                            height: 100.h,
+                            width: 100.w,
                             child: Image.network(
                               itemImage,
-                              height: 100,
-                              width: 100,
+                              height: 100.h,
+                              width: 100.w,
+                              loadingBuilder:
+                                  (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Center(
+                                  child: CircularProgressIndicator(
+                                      color: Colors.grey),
+                                );
+                              },
                             ),
                           ),
-                          // Image.asset('assets/emptyImage.png')
                         )
                       ],
                     ),
@@ -125,6 +141,8 @@ class RecordContainer extends StatelessWidget {
                         ],
                       ),
                     ),
+
+                    //price
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [

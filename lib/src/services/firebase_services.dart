@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirebaseServices {
   // Fetch Excprense List
-  getExprenseList() {
+  getExpenseList() {
     return FirebaseFirestore.instance.collection('expenseList').snapshots();
   }
 
@@ -11,8 +11,8 @@ class FirebaseServices {
       {required title,
       required description,
       required price,
-      required image}) async {
-    var millisecond = DateTime.now().millisecondsSinceEpoch.toString();
+      required image,
+      required millisecond}) async {
     await FirebaseFirestore.instance
         .collection('expenseList')
         .doc(millisecond)
